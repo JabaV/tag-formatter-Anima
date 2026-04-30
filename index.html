@@ -1,129 +1,344 @@
 <!doctype html>
 <html lang="ru">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light dark" />
-    <meta
-      name="description"
-      content="Минималистичный formatter тегов для GitHub Pages: вставьте сырой список тегов, получите аккуратно отформатированную строку и скопируйте результат."
-    />
-    <title>Tag Formatter</title>
-    <link rel="stylesheet" href="./src/styles.css" />
-    <style>
-      /* Critical accessibility fallback duplicated in HTML for static validation. */
-      @media (prefers-reduced-motion: reduce) {
-        *, *::before, *::after {
-          animation-duration: 0.01ms !important;
-          animation-iteration-count: 1 !important;
-          transition-duration: 0.01ms !important;
-          scroll-behavior: auto !important;
-        }
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Простой форматтер тегов для GitHub Pages." />
+  <title>Tag Formatter</title>
+  <style>
+    :root {
+      --primary: #6750a4;
+      --primary-dark: #4f378b;
+      --primary-soft: #eaddff;
+      --surface: #fffbff;
+      --surface-2: rgba(255, 251, 255, 0.9);
+      --text: #1d1b20;
+      --muted: #625b71;
+      --outline: rgba(121, 116, 126, 0.35);
+      --shadow: rgba(31, 22, 55, 0.22);
+      --success: #146c2e;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { min-height: 100%; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 18% 18%, rgba(103, 80, 164, 0.26), transparent 30%),
+        radial-gradient(circle at 86% 14%, rgba(0, 191, 166, 0.18), transparent 26%),
+        linear-gradient(135deg, #f8f3ff 0%, #eef7ff 52%, #fff7eb 100%);
+    }
+
+    main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: clamp(28px, 6vw, 72px) 0;
+    }
+
+    .hero {
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(44px, 9vw, 104px);
+      line-height: 0.95;
+      letter-spacing: -0.07em;
+    }
+
+    .description {
+      max-width: 760px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: clamp(16px, 2vw, 19px);
+      line-height: 1.7;
+    }
+
+    .card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      gap: 20px;
+      padding: clamp(16px, 3vw, 28px);
+      border: 1px solid var(--outline);
+      border-radius: 32px;
+      background: var(--surface-2);
+      box-shadow: 0 26px 80px var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .field {
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .field-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    label {
+      font-weight: 800;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 300px;
+      resize: vertical;
+      padding: 16px;
+      border: 1px solid var(--outline);
+      border-radius: 22px;
+      color: var(--text);
+      background: var(--surface);
+      font: inherit;
+      line-height: 1.6;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(103, 80, 164, 0.15);
+    }
+
+    textarea[readonly] {
+      background: #f6edff;
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .copy-row {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    button {
+      min-height: 48px;
+      min-width: 132px;
+      padding: 0 20px;
+      border: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 800;
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    button:hover { transform: translateY(-2px); }
+    button:active { transform: translateY(0) scale(0.98); }
+    button:focus-visible { outline: 3px solid var(--primary-dark); outline-offset: 3px; }
+
+    .primary {
+      color: white;
+      background: var(--primary);
+      box-shadow: 0 14px 30px rgba(103, 80, 164, 0.28);
+    }
+
+    .secondary {
+      color: #21005d;
+      background: var(--primary-soft);
+    }
+
+    .copy {
+      color: white;
+      background: linear-gradient(135deg, var(--primary), #00a88f);
+      box-shadow: 0 14px 34px rgba(0, 168, 143, 0.22);
+    }
+
+    .status {
+      grid-column: 1 / -1;
+      min-height: 24px;
+      margin: 0;
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    @media (max-width: 900px) {
+      .card { grid-template-columns: 1fr; }
+      .actions { flex-direction: row; flex-wrap: wrap; justify-content: flex-start; }
+      .copy-row { justify-content: stretch; }
+      .copy { width: 100%; }
+    }
+
+    @media (max-width: 560px) {
+      main { width: min(100% - 20px, 1120px); padding-top: 22px; }
+      .card { border-radius: 24px; }
+      .field-head { flex-direction: column; align-items: flex-start; gap: 4px; }
+      textarea { min-height: 220px; }
+      button { width: 100%; }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --surface: #1d1b20;
+        --surface-2: rgba(29, 27, 32, 0.92);
+        --text: #e6e0e9;
+        --muted: #cac4d0;
+        --outline: rgba(202, 196, 208, 0.28);
+        --shadow: rgba(0, 0, 0, 0.42);
+        --success: #7bd88f;
       }
-    </style>
-  </head>
-  <body>
-    <a class="skip-link" href="#main-content">Перейти к основному содержимому</a>
+      body {
+        background:
+          radial-gradient(circle at 18% 18%, rgba(208, 188, 255, 0.20), transparent 30%),
+          radial-gradient(circle at 86% 14%, rgba(0, 191, 166, 0.12), transparent 26%),
+          linear-gradient(135deg, #141218 0%, #1d1b20 52%, #241b2f 100%);
+      }
+      textarea[readonly] { background: #2a2235; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero" aria-labelledby="page-title">
+      <p class="eyebrow">GitHub Pages ready · zero dependencies</p>
+      <h1 id="page-title">Tag Formatter</h1>
+      <p class="description">
+        Вставьте список тегов в любом виде: с решётками, запятыми, пробелами или переносами строк.
+        Сервис нормализует их в аккуратную строку формата <strong>#tag-name</strong>.
+      </p>
+    </section>
 
-    <main id="main-content">
-      <!--
-        Techniques applied:
-        - 6-level CSS depth system: background, glow, mid decorations, raised panel, UI, foreground particles.
-        - Safe CSS-only ambient motion; no heavy runtime dependencies.
-        - Reduced-motion fallback and touch-device lite mode.
-        - Semantic HTML5 form controls and aria-live status feedback.
-      -->
-      <section class="scene" data-scene="formatter" aria-label="Сервис форматирования тегов">
-        <div class="layer depth-0" data-depth="0" aria-hidden="true">
-          <div class="ambient-grid"></div>
+    <form class="card" id="formatter-form" autocomplete="off">
+      <div class="field">
+        <div class="field-head">
+          <label for="source-tags">Исходный текст</label>
+          <span class="hint">Ctrl/⌘ + Enter — форматировать</span>
         </div>
+        <textarea id="source-tags" rows="10" spellcheck="false" placeholder="Например: React, TypeScript, github pages, #material-design"></textarea>
+      </div>
 
-        <div class="layer depth-1" data-depth="1" aria-hidden="true">
-          <div class="glow-blob glow-primary float-loop"></div>
-          <div class="glow-blob glow-secondary float-loop"></div>
+      <div class="actions" aria-label="Действия форматирования">
+        <button class="primary" type="submit">Format</button>
+        <button class="secondary" type="button" id="clear-button">Очистить</button>
+      </div>
+
+      <div class="field">
+        <div class="field-head">
+          <label for="formatted-tags">Форматированный текст</label>
+          <span class="hint" id="tag-count">0 тегов</span>
         </div>
+        <textarea id="formatted-tags" rows="10" readonly spellcheck="false" placeholder="Результат появится здесь"></textarea>
+      </div>
 
-        <div class="layer depth-2" data-depth="2" aria-hidden="true">
-          <span class="orbit-chip chip-a float-loop">#clean</span>
-          <span class="orbit-chip chip-b float-loop">#typed</span>
-          <span class="orbit-chip chip-c float-loop">#static</span>
-        </div>
+      <div class="copy-row">
+        <button class="copy" type="button" id="copy-button">Скопировать всё поле</button>
+      </div>
 
-        <div class="layer depth-3" data-depth="3" aria-hidden="true">
-          <div class="panel-shadow float-loop"></div>
-        </div>
+      <p class="status" id="status-message" role="status" aria-live="polite"></p>
+    </form>
+  </main>
 
-        <div class="layer depth-4" data-depth="4">
-          <div class="app-shell" data-animate="fade-up">
-            <header class="hero-header">
-              <p class="eyebrow">GitHub Pages ready · zero runtime deps</p>
-              <h1>Tag Formatter</h1>
-              <p class="hero-copy">
-                Вставьте список тегов в любом виде: с решётками, запятыми, пробелами или переносами строк.
-                Сервис нормализует их в аккуратную строку формата <strong>#tag-name</strong>.
-              </p>
-            </header>
+  <script>
+    const form = document.getElementById('formatter-form');
+    const source = document.getElementById('source-tags');
+    const output = document.getElementById('formatted-tags');
+    const copyButton = document.getElementById('copy-button');
+    const clearButton = document.getElementById('clear-button');
+    const statusMessage = document.getElementById('status-message');
+    const tagCount = document.getElementById('tag-count');
 
-            <form class="formatter-card" id="formatter-form" autocomplete="off">
-              <div class="field-group">
-                <div class="field-heading">
-                  <label for="source-tags">Исходный текст</label>
-                  <span class="field-hint">Ctrl/⌘ + Enter — форматировать</span>
-                </div>
-                <textarea
-                  id="source-tags"
-                  name="sourceTags"
-                  rows="10"
-                  spellcheck="false"
-                  placeholder="Например: React, TypeScript, github pages, #material-design"
-                ></textarea>
-              </div>
+    const splitPattern = /[\s,;|]+/g;
+    const unsafeCharsPattern = /[^\p{L}\p{N}_-]+/gu;
 
-              <div class="actions" aria-label="Действия форматирования">
-                <button class="button button-primary" type="submit" id="format-button">
-                  <span aria-hidden="true">✦</span>
-                  Format
-                </button>
-                <button class="button button-secondary" type="button" id="clear-button">
-                  Очистить
-                </button>
-              </div>
+    function normalizeTag(value) {
+      return value
+        .trim()
+        .replace(/^#+/g, '')
+        .normalize('NFKC')
+        .toLowerCase()
+        .replace(unsafeCharsPattern, '-')
+        .replace(/[-_]{2,}/g, '-')
+        .replace(/^[-_]+|[-_]+$/g, '');
+    }
 
-              <div class="field-group">
-                <div class="field-heading">
-                  <label for="formatted-tags">Форматированный текст</label>
-                  <span class="field-hint" id="tag-count">0 тегов</span>
-                </div>
-                <textarea
-                  id="formatted-tags"
-                  name="formattedTags"
-                  rows="10"
-                  readonly
-                  spellcheck="false"
-                  placeholder="Результат появится здесь"
-                ></textarea>
-              </div>
+    function pluralize(count) {
+      const lastDigit = count % 10;
+      const lastTwoDigits = count % 100;
+      if (lastTwoDigits >= 11 && lastTwoDigits <= 14) return count + ' тегов';
+      if (lastDigit === 1) return count + ' тег';
+      if (lastDigit >= 2 && lastDigit <= 4) return count + ' тега';
+      return count + ' тегов';
+    }
 
-              <div class="actions actions-end">
-                <button class="button button-copy" type="button" id="copy-button">
-                  Скопировать всё поле
-                </button>
-              </div>
+    function formatTags() {
+      const unique = new Map();
+      source.value
+        .split(splitPattern)
+        .map(normalizeTag)
+        .filter(Boolean)
+        .forEach((tag) => unique.set(tag, '#' + tag));
 
-              <p class="status" id="status-message" role="status" aria-live="polite"></p>
-            </form>
-          </div>
-        </div>
+      const result = Array.from(unique.values());
+      output.value = result.join(' ');
+      tagCount.textContent = pluralize(result.length);
+      statusMessage.textContent = result.length ? 'Готово: ' + pluralize(result.length) + ' отформатировано.' : 'Добавьте хотя бы один тег.';
+    }
 
-        <div class="layer depth-5" data-depth="5" aria-hidden="true">
-          <span class="particle particle-a float-loop"></span>
-          <span class="particle particle-b float-loop"></span>
-          <span class="particle particle-c float-loop"></span>
-          <span class="particle particle-d float-loop"></span>
-        </div>
-      </section>
-    </main>
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      formatTags();
+    });
 
-    <script type="module" src="./assets/main.js"></script>
-  </body>
+    source.addEventListener('keydown', function (event) {
+      if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+        event.preventDefault();
+        formatTags();
+      }
+    });
+
+    clearButton.addEventListener('click', function () {
+      source.value = '';
+      output.value = '';
+      tagCount.textContent = '0 тегов';
+      statusMessage.textContent = 'Поля очищены.';
+      source.focus();
+    });
+
+    copyButton.addEventListener('click', async function () {
+      const value = output.value.trim();
+      if (!value) {
+        statusMessage.textContent = 'Нечего копировать: сначала нажмите Format.';
+        source.focus();
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(value);
+        statusMessage.textContent = 'Форматированный текст скопирован.';
+      } catch (error) {
+        output.select();
+        document.execCommand('copy');
+        statusMessage.textContent = 'Форматированный текст скопирован через fallback.';
+      }
+    });
+  </script>
+</body>
 </html>
