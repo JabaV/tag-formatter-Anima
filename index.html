@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="description"
+      content="Минималистичный formatter тегов для GitHub Pages: вставьте сырой список тегов, получите аккуратно отформатированную строку и скопируйте результат."
+    />
+    <title>Tag Formatter</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+    <style>
+      /* Critical accessibility fallback duplicated in HTML for static validation. */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Перейти к основному содержимому</a>
+
+    <main id="main-content">
+      <!--
+        Techniques applied:
+        - 6-level CSS depth system: background, glow, mid decorations, raised panel, UI, foreground particles.
+        - Safe CSS-only ambient motion; no heavy runtime dependencies.
+        - Reduced-motion fallback and touch-device lite mode.
+        - Semantic HTML5 form controls and aria-live status feedback.
+      -->
+      <section class="scene" data-scene="formatter" aria-label="Сервис форматирования тегов">
+        <div class="layer depth-0" data-depth="0" aria-hidden="true">
+          <div class="ambient-grid"></div>
+        </div>
+
+        <div class="layer depth-1" data-depth="1" aria-hidden="true">
+          <div class="glow-blob glow-primary float-loop"></div>
+          <div class="glow-blob glow-secondary float-loop"></div>
+        </div>
+
+        <div class="layer depth-2" data-depth="2" aria-hidden="true">
+          <span class="orbit-chip chip-a float-loop">#clean</span>
+          <span class="orbit-chip chip-b float-loop">#typed</span>
+          <span class="orbit-chip chip-c float-loop">#static</span>
+        </div>
+
+        <div class="layer depth-3" data-depth="3" aria-hidden="true">
+          <div class="panel-shadow float-loop"></div>
+        </div>
+
+        <div class="layer depth-4" data-depth="4">
+          <div class="app-shell" data-animate="fade-up">
+            <header class="hero-header">
+              <p class="eyebrow">GitHub Pages ready · zero runtime deps</p>
+              <h1>Tag Formatter</h1>
+              <p class="hero-copy">
+                Вставьте список тегов в любом виде: с решётками, запятыми, пробелами или переносами строк.
+                Сервис нормализует их в аккуратную строку формата <strong>#tag-name</strong>.
+              </p>
+            </header>
+
+            <form class="formatter-card" id="formatter-form" autocomplete="off">
+              <div class="field-group">
+                <div class="field-heading">
+                  <label for="source-tags">Исходный текст</label>
+                  <span class="field-hint">Ctrl/⌘ + Enter — форматировать</span>
+                </div>
+                <textarea
+                  id="source-tags"
+                  name="sourceTags"
+                  rows="10"
+                  spellcheck="false"
+                  placeholder="Например: React, TypeScript, github pages, #material-design"
+                ></textarea>
+              </div>
+
+              <div class="actions" aria-label="Действия форматирования">
+                <button class="button button-primary" type="submit" id="format-button">
+                  <span aria-hidden="true">✦</span>
+                  Format
+                </button>
+                <button class="button button-secondary" type="button" id="clear-button">
+                  Очистить
+                </button>
+              </div>
+
+              <div class="field-group">
+                <div class="field-heading">
+                  <label for="formatted-tags">Форматированный текст</label>
+                  <span class="field-hint" id="tag-count">0 тегов</span>
+                </div>
+                <textarea
+                  id="formatted-tags"
+                  name="formattedTags"
+                  rows="10"
+                  readonly
+                  spellcheck="false"
+                  placeholder="Результат появится здесь"
+                ></textarea>
+              </div>
+
+              <div class="actions actions-end">
+                <button class="button button-copy" type="button" id="copy-button">
+                  Скопировать всё поле
+                </button>
+              </div>
+
+              <p class="status" id="status-message" role="status" aria-live="polite"></p>
+            </form>
+          </div>
+        </div>
+
+        <div class="layer depth-5" data-depth="5" aria-hidden="true">
+          <span class="particle particle-a float-loop"></span>
+          <span class="particle particle-b float-loop"></span>
+          <span class="particle particle-c float-loop"></span>
+          <span class="particle particle-d float-loop"></span>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./assets/main.js"></script>
+  </body>
+</html>
